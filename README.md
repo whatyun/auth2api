@@ -4,7 +4,7 @@ A lightweight proxy that converts Claude OAuth tokens into an OpenAI-compatible 
 
 ## Features
 
-- **OpenAI-compatible API** — drop-in replacement for OpenAI clients (`/v1/chat/completions`, `/v1/models`)
+- **OpenAI-compatible API** — drop-in replacement for OpenAI clients (`/v1/chat/completions`, `/v1/responses`, `/v1/models`)
 - **Claude native passthrough** — direct `/v1/messages` and `/v1/messages/count_tokens` endpoints
 - **Streaming support** — SSE streaming for both OpenAI and Claude native formats
 - **Thinking/reasoning** — maps `reasoning_effort` to Claude's extended thinking
@@ -13,6 +13,7 @@ A lightweight proxy that converts Claude OAuth tokens into an OpenAI-compatible 
 - **Single-account mode** — one Claude OAuth account with cooldown, refresh, and health tracking
 - **Auto token refresh** — refreshes OAuth tokens before expiry
 - **Claude Code compatible** — accepts both `Authorization: Bearer` and `x-api-key` headers
+- **Admin status endpoint** — inspect account health via `/admin/accounts`
 - **Security** — timing-safe API key validation, rate limiting (60 req/min per IP), localhost-only CORS
 
 ## Requirements
@@ -54,6 +55,8 @@ node dist/index.js
 ```
 
 The server starts on `http://127.0.0.1:8317` by default. On first run, an API key is auto-generated and saved to `config.yaml`.
+
+If the configured Claude account is temporarily cooled down after upstream rate limiting, auth2api now returns `429 Rate limited on the configured account` instead of a generic `503`.
 
 ## Configuration
 
@@ -106,9 +109,11 @@ curl http://127.0.0.1:8317/v1/chat/completions \
 | Endpoint | Description |
 |----------|-------------|
 | `POST /v1/chat/completions` | OpenAI-compatible chat |
+| `POST /v1/responses` | OpenAI Responses API compatibility |
 | `POST /v1/messages` | Claude native passthrough |
 | `POST /v1/messages/count_tokens` | Claude token counting |
 | `GET /v1/models` | List available models |
+| `GET /admin/accounts` | Account health/status (API key required) |
 | `GET /health` | Health check |
 
 ## Docker
@@ -145,7 +150,30 @@ Claude Code uses the native `/v1/messages` endpoint which auth2api passes throug
 
 ## Single-account mode
 
-This proxy now supports exactly one Claude OAuth account at a time. Running `--login` again refreshes the stored token for the same account. If a different account is already stored, auth2api will ask you to remove the existing token first.
+This proxy supports exactly one Claude OAuth account at a time.
+
+- Running `--login` again refreshes the stored token for the same account.
+- If a different account is already stored, auth2api refuses to overwrite it and asks you to remove the existing token first.
+- If more than one token file exists in the auth directory, auth2api exits with an error until you clean up the extra files.
+
+## Admin status
+
+Use `/admin/accounts` with your configured API key to inspect the current account state:
+
+```bash
+curl http://127.0.0.1:8317/admin/accounts \
+  -H "Authorization: Bearer <your-api-key>"
+```
+
+The response includes account availability, cooldown, failure counters, last refresh time, and basic request statistics.
+
+## Smoke tests
+
+A minimal automated smoke test suite is included and uses mocked upstream responses, so it does not call the real Claude service:
+
+```bash
+npm run test:smoke
+```
 
 ## License
 

@@ -105,23 +105,18 @@ export function createServer(config: Config, manager: AccountManager): express.A
 
   app.get("/v1/models", (_req, res) => {
     const models = [
-      "claude-sonnet-4-5-20250929",
+      "claude-opus-4-6",
+      "claude-sonnet-4-6",
       "claude-haiku-4-5-20251001",
-      "claude-opus-4-1-20250805",
-      "claude-opus-4-20250514",
-      "claude-sonnet-4-20250514",
-      "claude-3-7-sonnet-20250219",
-      "claude-3-5-haiku-20241022",
-      // Short aliases
-      "claude-sonnet-4-5",
       "claude-haiku-4-5",
-      "claude-opus-4-1",
-      "claude-opus-4.1",
-      "claude-sonnet-4",
-      "claude-opus-4",
-      "claude-haiku-4",
-      "claude-3-5-haiku",
-      "claude-3-7-sonnet",
+      // Convenience aliases
+      "opus",
+      "sonnet",
+      "haiku",
+      // Canonical aliases exposed by Anthropic docs
+      "claude-haiku-4-5",
+      "claude-opus-4-6",
+      "claude-sonnet-4-6",
     ];
     res.json({
       object: "list",

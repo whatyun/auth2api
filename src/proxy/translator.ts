@@ -3,15 +3,12 @@ import { v4 as uuidv4 } from "uuid";
 // ── Model alias resolution ──
 
 const MODEL_ALIASES: Record<string, string> = {
-  "claude-sonnet-4-5":       "claude-sonnet-4-5-20250929",
+  opus:                      "claude-opus-4-6",
+  sonnet:                    "claude-sonnet-4-6",
+  haiku:                     "claude-haiku-4-5-20251001",
+  "claude-opus-4-6":         "claude-opus-4-6",
+  "claude-sonnet-4-6":       "claude-sonnet-4-6",
   "claude-haiku-4-5":        "claude-haiku-4-5-20251001",
-  "claude-opus-4-1":         "claude-opus-4-1-20250805",
-  "claude-opus-4.1":         "claude-opus-4-1-20250805",
-  "claude-sonnet-4":         "claude-sonnet-4-5-20250929",
-  "claude-opus-4":           "claude-opus-4-20250514",
-  "claude-haiku-4":          "claude-haiku-4-5-20251001",
-  "claude-3-5-haiku":        "claude-3-5-haiku-20241022",
-  "claude-3-7-sonnet":       "claude-3-7-sonnet-20250219",
 };
 
 export function resolveModel(model: string): string {
@@ -103,7 +100,7 @@ function convertTools(tools: any[]): any[] {
 
 export function openaiToClaude(body: any): any {
   const claudeBody: any = {
-    model: resolveModel(body.model || "claude-sonnet-4-5-20250929"),
+    model: resolveModel(body.model || "claude-sonnet-4-6"),
     max_tokens: body.max_tokens || 8192,
     stream: !!body.stream,
   };

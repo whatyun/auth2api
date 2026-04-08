@@ -93,6 +93,7 @@ async function startServer(): Promise<void> {
   }
 
   manager.startAutoRefresh();
+  manager.startStatsLogger();
 
   const app = createServer(config, manager);
   const host = config.host || "127.0.0.1";
@@ -102,12 +103,17 @@ async function startServer(): Promise<void> {
     console.log(`auth2api running on http://${host}:${port}`);
     console.log(`Endpoints:`);
     console.log(`  POST /v1/chat/completions`);
+    console.log(`  POST /v1/responses`);
+    console.log(`  POST /v1/messages`);
+    console.log(`  POST /v1/messages/count_tokens`);
     console.log(`  GET  /v1/models`);
+    console.log(`  GET  /admin/accounts`);
     console.log(`  GET  /health`);
   });
 
   process.on("SIGINT", () => {
     manager.stopAutoRefresh();
+    manager.stopStatsLogger();
     process.exit(0);
   });
 }
